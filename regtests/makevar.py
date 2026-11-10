@@ -15,8 +15,6 @@
 #  distributed  with  this  software;   see  file COPYING3.  If not, go
 #  to http://www.gnu.org/licenses for a complete copy of the license.
 
-import sys
-
 comment_character = '#'
 kv_sep = '='
 
@@ -28,21 +26,18 @@ class MakeVar:
         self.keys = []   # config keys
         self.config = {} # key/value dictionary
 
-        config_file = open(self.config_file)
-        lines = (line.strip() for line in config_file)
-        # remove blanks lines
-        lines = (line for line in lines if line)
+        with open(self.config_file, encoding="utf-8") as config_file:
+            lines = (line.strip() for line in config_file)
+            # remove blank lines and skip comment lines
+            lines = (line for line in lines
+                     if line and line[0] != comment_character)
 
-        # parse key=value, skip comment lines
-        for item in lines:
-            if item.strip()[0] != comment_character:
+            for item in lines:
                 name, value = item.split(kv_sep, 1)
 
                 # add to config dict and keys list
                 self.config[name.strip()] = value.strip()
                 self.keys.append(name.strip())
-
-        config_file.close()
 
     def get(self, key, value="", equal="", notequal=""):
         """Returns the value associated with key if value not set.

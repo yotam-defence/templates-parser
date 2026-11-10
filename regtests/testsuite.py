@@ -98,7 +98,7 @@ class TPTestsuite(Testsuite):
 
         xmlada_enabled = False
 
-        if os.environ.get("TP_XMLADA") == None:
+        if os.environ.get("TP_XMLADA") is None:
             c = MakeVar("../makefile.setup")
             xmlada_enabled = c.get("TP_XMLADA") == "Installed"
         else:

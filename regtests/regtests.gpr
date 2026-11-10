@@ -33,7 +33,7 @@ project Regtests is
    --------------
 
    package Compiler is
-      for Default_Switches ("Ada") use ("-gnat05", "-g") & TP_Shared.Adaflags;
+      for Default_Switches ("Ada") use ("-gnat2022", "-g") & TP_Shared.Adaflags;
    end Compiler;
 
    -------------
