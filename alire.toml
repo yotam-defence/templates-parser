@@ -1,0 +1,47 @@
+name = "templates_parser"
+description = "Ada Templates Parser: template engine for Ada (used by Ada Web Server)"
+version = "25.0.0-dev"
+licenses = "GPL-3.0-or-later WITH GCC-exception-3.1"
+website = "https://github.com/AdaCore/templates-parser"
+authors = ["AdaCore"]
+maintainers = ["AdaCore <report@adacore.com>"]
+maintainers-logins = ["adacore"]
+project-files = ["templates_parser.gpr", "tools/tools.gpr"]
+executables = ["templates2ada", "templatespp"]
+tags = ["template", "parser", "web"]
+
+# Design decision: Alire configuration (templates_parser_config.gpr) is not used.
+# Scenario variables are mirrored as [gpr-externals] instead, so that tp_shared.gpr
+# stays the single shared source for both the Makefile and Alire builds. Variable
+# names must stay stable (consumed by aws).
+[configuration]
+disabled = true
+
+# templates_parser.gpr withs tp_xmlada.gpr, which the Makefile generates from
+# config/. Do the same for Alire builds (dummy variant unless it already exists).
+[[actions]]
+type = "pre-build"
+command = ["sh", "-c", "test -f tp_xmlada.gpr || if [ \"$TP_XMLADA\" = Installed ]; then cp config/tp_xmlada_installed.gpr tp_xmlada.gpr; else cp config/tp_xmlada_dummy.gpr tp_xmlada.gpr; fi"]
+
+[build-switches]
+"*".ada_version = "Ada2022"
+
+[gpr-externals]
+# Mirrors PRJ_BUILD / TP_XMLADA / LIBRARY_TYPE / TP_TASKING of tp_shared.gpr.
+PRJ_BUILD = ["Debug", "Release"]
+TP_XMLADA = ["Installed", "Disabled"]
+LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
+TP_TASKING = ["No_Tasking", "Standard_Tasking"]
+PRJ_TARGET = ["Windows", "macOS", "Linux", "FreeBSD", "UNIX"]
+
+[gpr-set-externals.'case(os)']
+linux = { PRJ_TARGET = "Linux" }
+macos = { PRJ_TARGET = "macOS" }
+windows = { PRJ_TARGET = "Windows" }
+"..." = { PRJ_TARGET = "UNIX" }
+
+# Optional XML/Ada support (design: Alire configuration is not used, scenario
+# variables stay external). A crate using XML/Ada adds `xmlada` to its own
+# dependencies and builds with TP_XMLADA=Installed (environment and -X); the
+# default build uses the dummy tp_xmlada project. PRJ_BUILD, LIBRARY_TYPE and
+# TP_TASKING keep the defaults of tp_shared.gpr unless set the same way.
