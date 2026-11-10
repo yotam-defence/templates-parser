@@ -10,7 +10,7 @@ project-files = ["templates_parser.gpr", "tools/tools.gpr"]
 executables = ["templates2ada", "templatespp"]
 tags = ["template", "parser", "web"]
 
-# Alire configuration is not used: scenario variables are mirrored below as
+# Design decision: Alire configuration (templates_parser_config.gpr) is not used;
 # gpr-externals so that tp_shared.gpr stays the single shared source for both
 # the Makefile and Alire builds. Variable names must stay stable (consumed by aws).
 [configuration]
@@ -20,7 +20,7 @@ disabled = true
 # config/. Do the same for Alire builds (dummy variant unless it already exists).
 [[actions]]
 type = "pre-build"
-command = ["sh", "-c", "test -f tp_xmlada.gpr || cp config/tp_xmlada_dummy.gpr tp_xmlada.gpr"]
+command = ["sh", "-c", "test -f tp_xmlada.gpr || if [ \"$TP_XMLADA\" = Installed ]; then cp config/tp_xmlada_installed.gpr tp_xmlada.gpr; else cp config/tp_xmlada_dummy.gpr tp_xmlada.gpr; fi"]
 
 [build-switches]
 "*".ada_version = "Ada2022"
@@ -33,15 +33,14 @@ LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
 TP_TASKING = ["No_Tasking", "Standard_Tasking"]
 PRJ_TARGET = ["Windows", "macOS", "Linux", "FreeBSD", "UNIX"]
 
-[gpr-set-externals]
-TP_XMLADA = "Disabled"
-LIBRARY_TYPE = "static"
-
 [gpr-set-externals.'case(os)']
 linux = { PRJ_TARGET = "Linux" }
 macos = { PRJ_TARGET = "macOS" }
 windows = { PRJ_TARGET = "Windows" }
 "..." = { PRJ_TARGET = "UNIX" }
 
-# Optional XML/Ada support: build with  alr build -- -XTP_XMLADA=Installed
-# after `alr with xmlada`; default build uses the dummy tp_xmlada project.
+# Optional XML/Ada support (design: Alire configuration is not used, scenario
+# variables stay external). A crate using XML/Ada adds `xmlada` to its own
+# dependencies and builds with TP_XMLADA=Installed (environment and -X); the
+# default build uses the dummy tp_xmlada project. PRJ_BUILD, LIBRARY_TYPE and
+# TP_TASKING keep the defaults of tp_shared.gpr unless set the same way.
