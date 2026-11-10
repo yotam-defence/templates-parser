@@ -10,9 +10,10 @@ project-files = ["templates_parser.gpr", "tools/tools.gpr"]
 executables = ["templates2ada", "templatespp"]
 tags = ["template", "parser", "web"]
 
-# Design decision: Alire configuration (templates_parser_config.gpr) is not used;
-# gpr-externals so that tp_shared.gpr stays the single shared source for both
-# the Makefile and Alire builds. Variable names must stay stable (consumed by aws).
+# Design decision: Alire configuration (templates_parser_config.gpr) is not used.
+# Scenario variables are mirrored as [gpr-externals] instead, so that tp_shared.gpr
+# stays the single shared source for both the Makefile and Alire builds. Variable
+# names must stay stable (consumed by aws).
 [configuration]
 disabled = true
 
